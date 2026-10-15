@@ -760,7 +760,7 @@ actividad_comparable = not fechas_disponibles.empty and fechas_disponibles.min()
 
 def indicador_actividad(actual, anterior, comparable=True):
     if not comparable:
-        return "· sin base", "#64748b"
+        return "", "#1e293b"
     if actual > anterior:
         return "↑", "#15803d"
     if actual < anterior:
@@ -791,7 +791,8 @@ for com_nombre, group in df_filtrado.groupby("Comercio"):
         "Comercio": com_nombre,
         "Localidad": loc_val,
         "Consultas del día": int(consultas_dia_por_comercio.get(com_nombre, 0)),
-        "Consultas": sub_m["total_consultas"],
+        "Consultas totales": sub_m["total_consultas"],
+        "Consultas con oferta": sub_m["total_con_oferta"],
         "Rechazadas": sub_m["rechazadas"],
         "Incompletas": sub_m["incompletas"],
         "En Análisis": sub_m["en_analisis"],
@@ -818,13 +819,13 @@ elif "Approval Rate" in criterio_orden:
 elif "Mayor Conversión" in criterio_orden:
     df_resumen = df_resumen.sort_values("Conversión (%)", ascending=False)
 elif "Cantidad de Consultas" in criterio_orden:
-    df_resumen = df_resumen.sort_values("Consultas", ascending=False)
+    df_resumen = df_resumen.sort_values("Consultas totales", ascending=False)
 else:
     df_resumen = df_resumen.sort_values("Total Colocado ($)", ascending=False)
 
 # Fila consolidada de totales al pie de la tabla
 if not df_resumen.empty:
-    tot_consultas = int(df_resumen["Consultas"].sum())
+    tot_consultas = int(df_resumen["Consultas totales"].sum())
     tot_rechazadas = int(df_resumen["Rechazadas"].sum())
     tot_incompletas = int(df_resumen["Incompletas"].sum())
     tot_en_analisis = int(df_resumen["En Análisis"].sum())
@@ -841,7 +842,8 @@ if not df_resumen.empty:
         "Comercio": "📌 TOTAL CONSOLIDADO",
         "Localidad": "Toda la Cartera",
         "Consultas del día": int(df_resumen["Consultas del día"].sum()),
-        "Consultas": tot_consultas,
+        "Consultas totales": tot_consultas,
+        "Consultas con oferta": tot_con_oferta,
         "Rechazadas": tot_rechazadas,
         "Incompletas": tot_incompletas,
         "En Análisis": tot_en_analisis,
@@ -866,7 +868,7 @@ with st.expander("Más info", expanded=False):
     if not historial_anual_disponible:
         st.info("Falta el historial desde enero. Actualizá los datos del portal para calcular el promedio y el avance; no se consideran meses faltantes como meses sin ventas.")
     st.caption(f"Colocación mensual al {fecha_avance:%d/%m/%Y}: liquidados del año ÷ {fecha_avance.month} meses (incluye meses sin colocación). Esperado hoy: {fraccion_mes:.1%} del promedio. Avance: 🟢 ≥100% · 🟡 ≥90% y <100% · 🔴 <90% · ⚪ sin base. Usa fecha de liquidación y el historial disponible, independientemente del rango de fechas de alta.")
-    st.caption(f"Consultas del día: parcial de hoy {hoy_argentina:%d/%m/%Y}, independiente del filtro de fechas. Consultas conserva el total del período elegido. Actividad: ↑ verde si supera ayer, — amarillo si iguala, ↓ rojo si baja. Compara hoy parcial con ayer completo según fecha de alta; sin cobertura de ambos días se indica sin base.")
+    st.caption(f"Consultas del día: parcial de hoy {hoy_argentina:%d/%m/%Y}, independiente del filtro de fechas. Consultas conserva el total del período elegido. Actividad: ↑ verde si supera ayer, — amarillo si iguala, ↓ rojo si baja. Compara hoy parcial con ayer completo según fecha de alta; la flecha aparece cuando hay datos de ambos días.")
     st.caption(f"Actividad del período: {f_desde:%d/%m/%Y}–{f_hasta:%d/%m/%Y} contra {anterior_desde:%d/%m/%Y}–{anterior_hasta:%d/%m/%Y}. Un mes se compara con el mes anterior; un año, con el anterior; otros rangos, con igual cantidad de días previos. Se cuentan todos los estados.")
 st.caption("Tocá una fila para ver sus créditos liquidados, en análisis y aprobados.")
 estilo_resumen = df_resumen_con_total.style.format({
@@ -883,16 +885,17 @@ for indice, fila in df_resumen_con_total.iterrows():
     anterior = int(consultas_ayer_por_comercio.reindex(df_resumen["Comercio"], fill_value=0).sum()) if indice == len(df_resumen) else int(consultas_ayer_por_comercio.get(fila["Comercio"], 0))
     simbolo, color = indicador_actividad(int(fila["Consultas del día"]), anterior, actividad_comparable)
     celda = pd.IndexSlice[[indice], ["Consultas del día"]]
-    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo: f"{int(valor):,} {flecha}", subset=celda).set_properties(subset=celda, color=color, **{"font-weight": "bold"})
+    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo: f"{int(valor):,} {flecha}".strip(), subset=celda).set_properties(subset=celda, color=color, **{"font-weight": "bold"})
     anterior_periodo = int(consultas_periodo_anterior.reindex(df_resumen["Comercio"], fill_value=0).sum()) if indice == len(df_resumen) else int(consultas_periodo_anterior.get(fila["Comercio"], 0))
-    simbolo_periodo, color_periodo = indicador_actividad(int(fila["Consultas"]), anterior_periodo, periodo_comparable)
-    celda_periodo = pd.IndexSlice[[indice], ["Consultas"]]
-    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo_periodo: f"{int(valor):,} {flecha}", subset=celda_periodo).set_properties(subset=celda_periodo, color=color_periodo, **{"font-weight": "bold"})
+    simbolo_periodo, color_periodo = indicador_actividad(int(fila["Consultas totales"]), anterior_periodo, periodo_comparable)
+    celda_periodo = pd.IndexSlice[[indice], ["Consultas totales"]]
+    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo_periodo: f"{int(valor):,} {flecha}".strip(), subset=celda_periodo).set_properties(subset=celda_periodo, color=color_periodo, **{"font-weight": "bold"})
 seleccion_comercio = st.dataframe(
     estilo_resumen,
     use_container_width=True,
     height=340,
-    column_order=["Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"] + [c for c in df_resumen_con_total.columns if c not in {"Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"}],
+    hide_index=True,
+    column_order=["Comercio", "Consultas totales", "Consultas del día", "Consultas con oferta", "Aprobadas", "En Análisis", "Liquidadas", "Rechazadas", "Incompletas", "Aprobación (%)", "Conversión (%)", "Total Colocado ($)", "Venta Total ($)", "Ticket promedio ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación", "Semáforo", "Localidad"],
     on_select="rerun",
     selection_mode="single-cell",
     key="ranking_" + str(hash((criterio_orden, vista_seleccionada, str(f_desde), str(f_hasta), tuple(df_resumen_con_total.get("Comercio", []))))),
@@ -950,9 +953,9 @@ if not solo_general:
 st.subheader("🔍 Fichas Desplegables de Rendimiento Mes a Mes (MoM)")
 for _, row in df_resumen.head(10).iterrows():
     c_name = row["Comercio"]
-    with st.expander(f"{row['Semáforo']} **{c_name}** | Venta: {pesos(row['Venta Total ($)'])} | Conv: {row['Conversión (%)']:.1f}% | Consultas: {row['Consultas']}"):
+    with st.expander(f"{row['Semáforo']} **{c_name}** | Venta: {pesos(row['Venta Total ($)'])} | Conv: {row['Conversión (%)']:.1f}% | Consultas: {row['Consultas totales']}"):
         col_a, col_b, col_c, col_d = st.columns(4)
-        col_a.metric("Consultas", f"{row['Consultas']}", "Base del mes")
+        col_a.metric("Consultas totales", f"{row['Consultas totales']}", "Base del mes")
         col_b.metric("Venta Total", f"{pesos(row['Venta Total ($)'])}", f"{row['Liquidadas']} liquidadas")
         col_c.metric("Approval Rate", f"{row['Aprobación (%)']:.1f}%", "Tasa de Oferta")
         col_d.metric("Conversión", f"{row['Conversión (%)']:.1f}%", row["Semáforo"])
