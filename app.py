@@ -778,14 +778,16 @@ consultas_ayer_por_comercio = base_diaria[fechas_actividad.eq(fecha_ayer)].group
 fechas_disponibles = pd.to_datetime(df_raw["FechaAlta"], dayfirst=True, errors="coerce").dropna()
 actividad_comparable = not fechas_disponibles.empty and fechas_disponibles.min().date() <= fecha_ayer and reporte_actualizado.date() >= hoy_argentina
 
+tema_oscuro = getattr(getattr(st.context, "theme", None), "type", "light") == "dark"
+
 def indicador_actividad(actual, anterior, comparable=True):
     if not comparable:
-        return "", "#1e293b"
+        return "", "#ffffff" if tema_oscuro else "#1e293b"
     if actual > anterior:
-        return "↑", "#15803d"
+        return "↑", "#4ade80" if tema_oscuro else "#15803d"
     if actual < anterior:
-        return "↓", "#dc2626"
-    return "—", "#a16207"
+        return "↓", "#f87171" if tema_oscuro else "#dc2626"
+    return "—", "#facc15" if tema_oscuro else "#a16207"
 
 
 def rango_anterior_consultas(inicio, fin):
