@@ -407,7 +407,7 @@ if os.path.exists(report_path):
     ultima_actualizacion = datetime.datetime.fromtimestamp(os.path.getmtime(report_path), ZoneInfo("America/Argentina/Buenos_Aires"))
     st.sidebar.info("Última actualización del reporte: " + ultima_actualizacion.strftime("%d/%m/%Y %H:%M:%S") + " (Argentina)")
 
-st.sidebar.markdown(f'<div style="margin-top:32px; padding:16px 0 8px; text-align:left; border-top:1px solid #e5e7eb;"><img src="{logo_data("comerfin-powered-data.png")}" alt="ComerFin — Powered &amp; Data Analitycs" style="width:110px; max-width:55%; height:auto;"><div style="font-size:10px; opacity:.65; margin-top:6px;">Comercial Intelligent</div></div>', unsafe_allow_html=True)
+st.sidebar.markdown(f'<div style="margin-top:32px; padding:16px 0 8px; text-align:left; border-top:1px solid #e5e7eb;"><img src="{logo_data("comerfin-powered-data.png")}" alt="ComerFin — Powered &amp; Data Analitycs" style="width:110px; max-width:55%; height:auto;"><div style="font-size:10px; opacity:.65; margin-top:6px;">Comercial Inteligence</div></div>', unsafe_allow_html=True)
 
 # ----------------- PANEL PRINCIPAL -----------------
 main_title = txt.get("titulo_mi_cartera", "Dashboard Cartera Comercios") if "Mi Cartera" in vista_seleccionada else txt.get("titulo_cartera_general", "🌐 Dashboard: Red General de Mercado")
