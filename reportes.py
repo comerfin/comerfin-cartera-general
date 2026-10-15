@@ -120,16 +120,24 @@ def mostrar_reportes(datos, pesos):
         maximo = puntos[campo].max()
         puntos['radio'] = 1500 + (puntos[campo] / maximo * 12000 if maximo > 0 else 0)
         capa = pdk.Layer('ScatterplotLayer', puntos, id='localidades', get_position='[Longitud, Latitud]', get_radius='radio', radius_min_pixels=7, radius_max_pixels=35, get_fill_color=[247, 139, 33, 190], pickable=True, auto_highlight=True)
-        evento = st.pydeck_chart(pdk.Deck(layers=[capa], initial_view_state=pdk.ViewState(latitude=-38.4, longitude=-64, zoom=3), map_style=pdk.map_styles.LIGHT, tooltip={'text': '{nombre_seguro} · {Provincia}\nReferencia aproximada\nComercios: {comercios}\n' + indicador + ': {valor}\nConsultas: {total_consultas}'}), on_select='rerun', selection_mode='single-object', key='mapa_reportes')
+        evento = st.pydeck_chart(pdk.Deck(layers=[capa], initial_view_state=pdk.ViewState(latitude=-38.4, longitude=-64, zoom=3), map_style=pdk.map_styles.LIGHT, tooltip={'text': '{nombre_seguro} · {Provincia}\nReferencia aproximada\nComercios: {comercios}\n' + indicador + ': {valor}\nConsultas: {total_consultas}'}), on_select='rerun', selection_mode='single-object', key='mapa_reportes_grupos')
         seleccion = evento.selection.get('indices', {}).get('localidades', [])
-        if seleccion:
+        if seleccion and 0 <= seleccion[0] < len(puntos):
             st.session_state['localidad_reporte'] = puntos.iloc[seleccion[0]]['Localidad']
     if not pendientes.empty:
         with st.expander('Comercios con provincia o localidad a confirmar'):
             st.dataframe(pendientes, hide_index=True, use_container_width=True)
             st.download_button('Descargar pendientes de ubicación', pendientes.to_csv(index=False).encode('utf-8-sig'), 'ubicaciones_a_confirmar.csv', 'text/csv')
     st.caption('Tocá un punto del mapa o elegí una localidad para ver los comercios agrupados.')
-    localidad = st.selectbox('Explorar comercios de una localidad', sorted(datos['Localidad'].dropna().unique()), key='localidad_reporte')
+    opciones_localidad = sorted(datos['Localidad'].dropna().unique())
+    anterior = st.session_state.get('localidad_reporte')
+    if anterior is not None:
+        nuevo = agrupar_localidad(anterior)
+        if nuevo in opciones_localidad:
+            st.session_state['localidad_reporte'] = nuevo
+        else:
+            st.session_state.pop('localidad_reporte', None)
+    localidad = st.selectbox('Explorar comercios de una localidad', opciones_localidad, key='localidad_reporte')
     detalle = resumir(datos[datos['Localidad'] == localidad], 'Comercio')
     detalle = detalle[['Comercio', 'total_consultas', 'liquidadas', 'monto_liquidado', 'pct_aprobacion', 'pct_conversion_bruta']].rename(columns={'total_consultas': 'Consultas', 'liquidadas': 'Liquidados', 'monto_liquidado': 'Monto colocado', 'pct_aprobacion': 'Oferta (%)', 'pct_conversion_bruta': 'Conversión (%)'})
     origenes = datos.loc[datos['Localidad'].eq(localidad), ['Comercio', 'Localidad de origen', 'Partido / municipio', 'Provincia']].drop_duplicates('Comercio')
