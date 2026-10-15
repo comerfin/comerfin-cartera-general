@@ -749,7 +749,21 @@ def avance_colocacion(acumulado_anual, acumulado_mes):
         "Semáforo colocación": ("⚪ Sin historial anual" if not historial_anual_disponible else "⚪ Sin base") if avance is None else ("🟢 ↑" if avance >= 100 else "🟡 ↓" if avance >= 90 else "🔴 ↓"),
     }
 
-consultas_dia_por_comercio = consultas_dia.groupby("Comercio").size()
+fechas_actividad = pd.to_datetime(base_diaria["FechaAlta"], dayfirst=True, errors="coerce").dt.date
+fecha_ayer = hoy_argentina - datetime.timedelta(days=1)
+consultas_dia_por_comercio = base_diaria[fechas_actividad.eq(hoy_argentina)].groupby("Comercio").size()
+consultas_ayer_por_comercio = base_diaria[fechas_actividad.eq(fecha_ayer)].groupby("Comercio").size()
+fechas_disponibles = pd.to_datetime(df_raw["FechaAlta"], dayfirst=True, errors="coerce").dropna()
+actividad_comparable = not fechas_disponibles.empty and fechas_disponibles.min().date() <= fecha_ayer and reporte_actualizado.date() >= hoy_argentina
+
+def indicador_actividad(actual, anterior):
+    if not actividad_comparable:
+        return "· sin base", "#64748b"
+    if actual > anterior:
+        return "↑", "#15803d"
+    if actual < anterior:
+        return "↓", "#dc2626"
+    return "—", "#a16207"
 resumen_comercios = []
 for com_nombre, group in df_filtrado.groupby("Comercio"):
     sub_rec = [{"estado": r["Estado"], "monto": r["Monto"]} for _, r in group.iterrows()]
@@ -833,10 +847,9 @@ else:
 if not historial_anual_disponible:
     st.info("Falta el historial desde enero. Actualizá los datos del portal para calcular el promedio y el avance; no se consideran meses faltantes como meses sin ventas.")
 st.caption(f"Colocación mensual al {fecha_avance:%d/%m/%Y}: liquidados del año ÷ {fecha_avance.month} meses (incluye meses sin colocación). Esperado hoy: {fraccion_mes:.1%} del promedio. Avance: 🟢 ≥100% · 🟡 ≥90% y <100% · 🔴 <90% · ⚪ sin base. Usa fecha de liquidación y el historial disponible, independientemente del rango de fechas de alta.")
-st.caption(f"Consultas del día: solicitudes dadas de alta el {fecha_consulta:%d/%m/%Y}, hasta la última actualización. La fecha se elige en el funnel; Consultas conserva el total del período de cada comercio.")
+st.caption(f"Consultas del día: parcial de hoy {hoy_argentina:%d/%m/%Y}, independiente del filtro de fechas. Consultas conserva el total del período elegido. Actividad: ↑ verde si supera ayer, — amarillo si iguala, ↓ rojo si baja. Compara hoy parcial con ayer completo según fecha de alta; sin cobertura de ambos días se indica sin base.")
 st.caption("Tocá una fila para ver sus créditos liquidados, en análisis y aprobados.")
-seleccion_comercio = st.dataframe(
-    df_resumen_con_total.style.format({
+estilo_resumen = df_resumen_con_total.style.format({
         "Venta Total ($)": pesos,
         "Total Colocado ($)": pesos,
         "Promedio mensual ($)": pesos,
@@ -845,7 +858,14 @@ seleccion_comercio = st.dataframe(
         "Ticket promedio ($)": pesos,
         "Aprobación (%)": "{:.1f}%",
         "Conversión (%)": "{:.1f}%",
-    }),
+    })
+for indice, fila in df_resumen_con_total.iterrows():
+    anterior = int(consultas_ayer_por_comercio.reindex(df_resumen["Comercio"], fill_value=0).sum()) if indice == len(df_resumen) else int(consultas_ayer_por_comercio.get(fila["Comercio"], 0))
+    simbolo, color = indicador_actividad(int(fila["Consultas del día"]), anterior)
+    celda = pd.IndexSlice[[indice], ["Consultas del día"]]
+    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo: f"{int(valor):,} {flecha}", subset=celda).set_properties(subset=celda, color=color, **{"font-weight": "bold"})
+seleccion_comercio = st.dataframe(
+    estilo_resumen,
     use_container_width=True,
     height=340,
     column_order=["Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"] + [c for c in df_resumen_con_total.columns if c not in {"Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"}],
