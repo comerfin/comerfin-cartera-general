@@ -749,6 +749,7 @@ def avance_colocacion(acumulado_anual, acumulado_mes):
         "Semáforo colocación": ("⚪ Sin historial anual" if not historial_anual_disponible else "⚪ Sin base") if avance is None else ("🟢 ↑" if avance >= 100 else "🟡 ↓" if avance >= 90 else "🔴 ↓"),
     }
 
+consultas_dia_por_comercio = consultas_dia.groupby("Comercio").size()
 resumen_comercios = []
 for com_nombre, group in df_filtrado.groupby("Comercio"):
     sub_rec = [{"estado": r["Estado"], "monto": r["Monto"]} for _, r in group.iterrows()]
@@ -757,6 +758,7 @@ for com_nombre, group in df_filtrado.groupby("Comercio"):
     resumen_comercios.append({
         "Comercio": com_nombre,
         "Localidad": loc_val,
+        "Consultas del día": int(consultas_dia_por_comercio.get(com_nombre, 0)),
         "Consultas": sub_m["total_consultas"],
         "Rechazadas": sub_m["rechazadas"],
         "Incompletas": sub_m["incompletas"],
@@ -806,6 +808,7 @@ if not df_resumen.empty:
     fila_total = pd.DataFrame([{
         "Comercio": "📌 TOTAL CONSOLIDADO",
         "Localidad": "Toda la Cartera",
+        "Consultas del día": int(df_resumen["Consultas del día"].sum()),
         "Consultas": tot_consultas,
         "Rechazadas": tot_rechazadas,
         "Incompletas": tot_incompletas,
@@ -830,6 +833,7 @@ else:
 if not historial_anual_disponible:
     st.info("Falta el historial desde enero. Actualizá los datos del portal para calcular el promedio y el avance; no se consideran meses faltantes como meses sin ventas.")
 st.caption(f"Colocación mensual al {fecha_avance:%d/%m/%Y}: liquidados del año ÷ {fecha_avance.month} meses (incluye meses sin colocación). Esperado hoy: {fraccion_mes:.1%} del promedio. Avance: 🟢 ≥100% · 🟡 ≥90% y <100% · 🔴 <90% · ⚪ sin base. Usa fecha de liquidación y el historial disponible, independientemente del rango de fechas de alta.")
+st.caption(f"Consultas del día: solicitudes dadas de alta el {fecha_consulta:%d/%m/%Y}, hasta la última actualización. La fecha se elige en el funnel; Consultas conserva el total del período de cada comercio.")
 st.caption("Tocá una fila para ver sus créditos liquidados, en análisis y aprobados.")
 seleccion_comercio = st.dataframe(
     df_resumen_con_total.style.format({
@@ -844,7 +848,7 @@ seleccion_comercio = st.dataframe(
     }),
     use_container_width=True,
     height=340,
-    column_order=["Comercio", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"] + [c for c in df_resumen_con_total.columns if c not in {"Comercio", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"}],
+    column_order=["Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"] + [c for c in df_resumen_con_total.columns if c not in {"Comercio", "Consultas del día", "Consultas", "Total Colocado ($)", "Promedio mensual ($)", "Colocado este mes ($)", "Avance esperado (%)", "Semáforo colocación"}],
     on_select="rerun",
     selection_mode="single-cell",
     key="ranking_" + str(hash((criterio_orden, vista_seleccionada, str(f_desde), str(f_hasta), tuple(df_resumen_con_total.get("Comercio", []))))),
