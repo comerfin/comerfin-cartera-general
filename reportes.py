@@ -43,6 +43,7 @@ def mostrar_reportes(datos, pesos):
     datos = datos.copy()
     referencias = json.loads(Path(__file__).with_name('referencias_localidades.json').read_text())
     datos['Provincia'] = datos['Localidad'].map(lambda loc: referencias.get(loc, {}).get('Provincia', 'A confirmar'))
+    datos.loc[datos['Comercio'].str.contains(r'KELLER|SUNRA', case=False, na=False), 'Provincia'] = 'Buenos Aires'
     nivel = st.radio('Agrupar por', ['Localidad', 'Provincia'], horizontal=True)
     localidades = resumir(datos, nivel).rename(columns={nivel: 'Localidad'})
     comparacion = localidades[localidades['total_consultas'] >= minimo].copy()

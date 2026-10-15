@@ -46,9 +46,9 @@ MAPA_LOCALIDADES = {
     "TBH MOTORCYCLES CAMPANA": "Campana",
     "FURLAN MOTOS SAN NICOLÁS": "San Nicolás",
     "PERGAMINO MOTOS": "Pergamino",
-    "KELLER OFICIAL ING MASCHWITZ": "Ing. Maschwitz (Escobar)",
+    "KELLER OFICIAL ING MASCHWITZ": "Escobar",
     "KELLER OFICIAL LUJAN": "Luján",
-    "KELLER OFICIAL PUEBLO NUEVO": "Pueblo Nuevo (Luján)",
+    "KELLER OFICIAL PUEBLO NUEVO": "Luján",
     "BAMBOO MOTOS Y BIKES CASTELAR": "Castelar (Morón)",
     "LAUREANO MOTOS SAN NICOLAS": "San Nicolás",
     # Champion Motos (2 locales — localidades a confirmar por Roberto)
@@ -62,6 +62,14 @@ MAPA_LOCALIDADES = {
 
 def inferir_localidad(comercio_str: str) -> str:
     c_up = str(comercio_str).strip().upper()
+    # Ubicaciones confirmadas por Roberto; prevalecen sobre inferencias.
+    if "SUNRA" in c_up:
+        return "Escobar"
+    if "KELLER" in c_up:
+        if any(zona in c_up for zona in ("MASCHWITZ", "MASHWITZ", "MASCHWIT", "ESCOBAR")):
+            return "Escobar"
+        if any(zona in c_up for zona in ("LUJAN", "LUJÁN", "PUEBLO NUEVO", "POLO NUEVO")):
+            return "Luján"
     if c_up in MAPA_LOCALIDADES:
         return MAPA_LOCALIDADES[c_up]
         
