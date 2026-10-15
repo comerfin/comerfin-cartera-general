@@ -1,0 +1,170 @@
+{
+  "Arrecifes": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.067514908,
+    "Longitud": -60.108691585,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Arrecifes"
+  },
+  "Azul": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -36.777447,
+    "Longitud": -59.863443046,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Azul"
+  },
+  "Baradero": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -33.807072775,
+    "Longitud": -59.502227835,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Baradero"
+  },
+  "Campana": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.16325402,
+    "Longitud": -58.95920775,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Campana"
+  },
+  "Castelar (Morón)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.651820534,
+    "Longitud": -58.646047508,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Castelar"
+  },
+  "Del Viso (Pilar)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.450215874,
+    "Longitud": -58.798632105,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Del Viso"
+  },
+  "Garín (Escobar)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.42303391,
+    "Longitud": -58.739461304,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Garín"
+  },
+  "Hurlingham": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.589871884,
+    "Longitud": -58.637441026,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Hurlingham"
+  },
+  "Ing. Maschwitz (Escobar)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.389235066,
+    "Longitud": -58.737866606,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Ingeniero Maschwitz"
+  },
+  "Junín": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.593941743,
+    "Longitud": -60.946430969,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Junín"
+  },
+  "Luján": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.566848358,
+    "Longitud": -59.114511802,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Luján"
+  },
+  "Monte": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -35.441043881,
+    "Longitud": -58.803451448,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "San Miguel del Monte"
+  },
+  "Pergamino": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -33.891109145,
+    "Longitud": -60.574586193,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Pergamino"
+  },
+  "Pilar": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.458696526,
+    "Longitud": -58.913967912,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Pilar"
+  },
+  "San Justo (La Matanza)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.68114175,
+    "Longitud": -58.563738604,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "San Justo"
+  },
+  "San Nicolás": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -33.327581039,
+    "Longitud": -60.217058045,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "San Nicolás de los Arroyos"
+  },
+  "San Pedro": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -33.675948032,
+    "Longitud": -59.663015814,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "San Pedro"
+  },
+  "Santa Teresita": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -36.540592501,
+    "Longitud": -56.692940742,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Santa Teresita"
+  },
+  "Zárate": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.09891652,
+    "Longitud": -59.029662932,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Zárate"
+  },
+  "Neuquén": {
+    "Provincia": "Neuquén",
+    "Latitud": -38.951828821,
+    "Longitud": -68.059181307,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Neuquén"
+  },
+  "General Roca (Río Negro)": {
+    "Provincia": "Río Negro",
+    "Latitud": -39.031513069,
+    "Longitud": -67.577990157,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "General Roca"
+  },
+  "Escobar": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.345470731,
+    "Longitud": -58.792810437,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Belén de Escobar"
+  },
+  "Monte Grande": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.816355799,
+    "Longitud": -58.468264232,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Monte Grande"
+  },
+  "Monteros": {
+    "Provincia": "Tucumán",
+    "Latitud": -27.16528714,
+    "Longitud": -65.497218288,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Monteros"
+  }
+}

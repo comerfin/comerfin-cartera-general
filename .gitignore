@@ -1,0 +1,5 @@
+downloads/
+.env
+.streamlit/secrets.toml
+session_state.json
+__pycache__/
