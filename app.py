@@ -538,7 +538,6 @@ with st.container(border=True, key="venta_acumulada_dia"):
         consultas_col.metric("Consultas brutas acumuladas del día", f"{metricas_consultas_dia['total_consultas']:,}")
         oferta_col.metric("Approval rate del día", f"{porcentaje_oferta:.2f}%" if metricas_consultas_dia["total_consultas"] else "—")
         st.caption(f"{fecha_consulta:%d/%m/%Y} · {metricas_consultas_dia['total_con_oferta']:,} consultas con oferta de {metricas_consultas_dia['total_consultas']:,} recibidas.")
-    st.caption("Oferta = incompletas con oferta + en análisis + aprobadas + liquidadas, sobre las consultas dadas de alta ese día y según su estado actual. Sin consultas, el porcentaje no aplica.")
     estados_diarios = base_diaria["Estado"].map(normalizar_estado)
     ventas_dia = base_diaria[
         (pd.to_datetime(base_diaria["FechaAprobacion"], dayfirst=True, errors="coerce").dt.date == fecha_consulta)
@@ -550,7 +549,9 @@ with st.container(border=True, key="venta_acumulada_dia"):
         cantidad = len(ventas_dia) if estado == "todos" else int(conteos_dia.get(estado, 0))
         if columna.button(f"{cantidad} {etiqueta}", key="diario_" + estado, use_container_width=True):
             mostrar_creditos_diarios(ventas_dia, estado, fecha_consulta)
-    st.caption("Según fecha de aprobación y estado actual del crédito. Respeta cartera, comercios y localidad; es independiente del rango general. Consulta limitada al período incluido en el reporte descargado.")
+    with st.expander("Más info", expanded=False):
+        st.caption("Oferta = incompletas con oferta + en análisis + aprobadas + liquidadas, sobre las consultas dadas de alta ese día y según su estado actual. Sin consultas, el porcentaje no aplica.")
+        st.caption("Según fecha de aprobación y estado actual del crédito. Respeta cartera, comercios y localidad; es independiente del rango general. Consulta limitada al período incluido en el reporte descargado.")
     if not ventas_dia.empty:
         with st.expander("Ver operaciones de la fecha"):
             detalle_creditos_diarios(ventas_dia, "todos_expandido_" + fecha_consulta.isoformat())
@@ -607,7 +608,8 @@ with c4:
 
 
 st.subheader("Ticket promedio de créditos")
-st.caption("Monto total dividido por la cantidad de créditos en cada estado. El conjunto incluye aprobados, en análisis y liquidados, respetando los filtros seleccionados.")
+with st.expander("Más info", expanded=False):
+    st.caption("Monto total dividido por la cantidad de créditos en cada estado. El conjunto incluye aprobados, en análisis y liquidados, respetando los filtros seleccionados.")
 tickets = [
     ("Tiket promedio total", m["monto_venta_total"], m["venta_total_cant"]),
     ("Ticket promedio aprobados", m["monto_aprobadas"], m["aprobadas"]),
@@ -756,14 +758,30 @@ consultas_ayer_por_comercio = base_diaria[fechas_actividad.eq(fecha_ayer)].group
 fechas_disponibles = pd.to_datetime(df_raw["FechaAlta"], dayfirst=True, errors="coerce").dropna()
 actividad_comparable = not fechas_disponibles.empty and fechas_disponibles.min().date() <= fecha_ayer and reporte_actualizado.date() >= hoy_argentina
 
-def indicador_actividad(actual, anterior):
-    if not actividad_comparable:
+def indicador_actividad(actual, anterior, comparable=True):
+    if not comparable:
         return "· sin base", "#64748b"
     if actual > anterior:
         return "↑", "#15803d"
     if actual < anterior:
         return "↓", "#dc2626"
     return "—", "#a16207"
+
+
+def rango_anterior_consultas(inicio, fin):
+    if inicio == fin:
+        return inicio - datetime.timedelta(days=1), inicio - datetime.timedelta(days=1)
+    if inicio.month == 1 and inicio.day == 1 and fin.year == inicio.year and fin.month > 1:
+        return datetime.date(inicio.year - 1, 1, 1), datetime.date(inicio.year - 1, 12, 31)
+    if inicio.day == 1 and (inicio.year, inicio.month) == (fin.year, fin.month):
+        ultimo = inicio - datetime.timedelta(days=1)
+        return ultimo.replace(day=1), ultimo
+    anterior_hasta = inicio - datetime.timedelta(days=1)
+    return anterior_hasta - (fin - inicio), anterior_hasta
+
+anterior_desde, anterior_hasta = rango_anterior_consultas(f_desde, f_hasta)
+consultas_periodo_anterior = base_diaria[fechas_actividad.ge(anterior_desde) & fechas_actividad.le(anterior_hasta)].groupby("Comercio").size()
+periodo_comparable = not fechas_disponibles.empty and fechas_disponibles.min().date() <= anterior_desde and reporte_actualizado.date() >= anterior_hasta
 resumen_comercios = []
 for com_nombre, group in df_filtrado.groupby("Comercio"):
     sub_rec = [{"estado": r["Estado"], "monto": r["Monto"]} for _, r in group.iterrows()]
@@ -844,10 +862,12 @@ else:
 
 
 # Mostrar tabla resumen
-if not historial_anual_disponible:
-    st.info("Falta el historial desde enero. Actualizá los datos del portal para calcular el promedio y el avance; no se consideran meses faltantes como meses sin ventas.")
-st.caption(f"Colocación mensual al {fecha_avance:%d/%m/%Y}: liquidados del año ÷ {fecha_avance.month} meses (incluye meses sin colocación). Esperado hoy: {fraccion_mes:.1%} del promedio. Avance: 🟢 ≥100% · 🟡 ≥90% y <100% · 🔴 <90% · ⚪ sin base. Usa fecha de liquidación y el historial disponible, independientemente del rango de fechas de alta.")
-st.caption(f"Consultas del día: parcial de hoy {hoy_argentina:%d/%m/%Y}, independiente del filtro de fechas. Consultas conserva el total del período elegido. Actividad: ↑ verde si supera ayer, — amarillo si iguala, ↓ rojo si baja. Compara hoy parcial con ayer completo según fecha de alta; sin cobertura de ambos días se indica sin base.")
+with st.expander("Más info", expanded=False):
+    if not historial_anual_disponible:
+        st.info("Falta el historial desde enero. Actualizá los datos del portal para calcular el promedio y el avance; no se consideran meses faltantes como meses sin ventas.")
+    st.caption(f"Colocación mensual al {fecha_avance:%d/%m/%Y}: liquidados del año ÷ {fecha_avance.month} meses (incluye meses sin colocación). Esperado hoy: {fraccion_mes:.1%} del promedio. Avance: 🟢 ≥100% · 🟡 ≥90% y <100% · 🔴 <90% · ⚪ sin base. Usa fecha de liquidación y el historial disponible, independientemente del rango de fechas de alta.")
+    st.caption(f"Consultas del día: parcial de hoy {hoy_argentina:%d/%m/%Y}, independiente del filtro de fechas. Consultas conserva el total del período elegido. Actividad: ↑ verde si supera ayer, — amarillo si iguala, ↓ rojo si baja. Compara hoy parcial con ayer completo según fecha de alta; sin cobertura de ambos días se indica sin base.")
+    st.caption(f"Actividad del período: {f_desde:%d/%m/%Y}–{f_hasta:%d/%m/%Y} contra {anterior_desde:%d/%m/%Y}–{anterior_hasta:%d/%m/%Y}. Un mes se compara con el mes anterior; un año, con el anterior; otros rangos, con igual cantidad de días previos. Se cuentan todos los estados.")
 st.caption("Tocá una fila para ver sus créditos liquidados, en análisis y aprobados.")
 estilo_resumen = df_resumen_con_total.style.format({
         "Venta Total ($)": pesos,
@@ -861,9 +881,13 @@ estilo_resumen = df_resumen_con_total.style.format({
     })
 for indice, fila in df_resumen_con_total.iterrows():
     anterior = int(consultas_ayer_por_comercio.reindex(df_resumen["Comercio"], fill_value=0).sum()) if indice == len(df_resumen) else int(consultas_ayer_por_comercio.get(fila["Comercio"], 0))
-    simbolo, color = indicador_actividad(int(fila["Consultas del día"]), anterior)
+    simbolo, color = indicador_actividad(int(fila["Consultas del día"]), anterior, actividad_comparable)
     celda = pd.IndexSlice[[indice], ["Consultas del día"]]
     estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo: f"{int(valor):,} {flecha}", subset=celda).set_properties(subset=celda, color=color, **{"font-weight": "bold"})
+    anterior_periodo = int(consultas_periodo_anterior.reindex(df_resumen["Comercio"], fill_value=0).sum()) if indice == len(df_resumen) else int(consultas_periodo_anterior.get(fila["Comercio"], 0))
+    simbolo_periodo, color_periodo = indicador_actividad(int(fila["Consultas"]), anterior_periodo, periodo_comparable)
+    celda_periodo = pd.IndexSlice[[indice], ["Consultas"]]
+    estilo_resumen = estilo_resumen.format(lambda valor, flecha=simbolo_periodo: f"{int(valor):,} {flecha}", subset=celda_periodo).set_properties(subset=celda_periodo, color=color_periodo, **{"font-weight": "bold"})
 seleccion_comercio = st.dataframe(
     estilo_resumen,
     use_container_width=True,

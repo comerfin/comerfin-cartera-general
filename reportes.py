@@ -33,7 +33,8 @@ def resumir(datos, agrupacion):
 
 def mostrar_reportes(datos, pesos):
     st.header('Reportes y gráficos')
-    st.caption('Se aplican la cartera, el período, los comercios y las localidades seleccionados. Colocación y conversión consideran créditos liquidados.')
+    with st.expander("Más info", expanded=False):
+        st.caption('Se aplican la cartera, el período, los comercios y las localidades seleccionados. Colocación y conversión consideran créditos liquidados.')
     if datos.empty:
         st.info('No hay datos para los filtros seleccionados.')
         return
@@ -48,7 +49,8 @@ def mostrar_reportes(datos, pesos):
     localidades = resumir(datos, nivel).rename(columns={nivel: 'Localidad'})
     comparacion = localidades[localidades['total_consultas'] >= minimo].copy()
     st.subheader('Comparación por ' + nivel.lower())
-    st.caption('Las localidades actuales se estiman a partir del nombre del comercio. “Otras Localidades” agrupa comercios sin localidad identificada. Los porcentajes reflejan el estado actual del reporte.')
+    with st.expander("Más info", expanded=False):
+        st.caption('Las localidades actuales se estiman a partir del nombre del comercio. “Otras Localidades” agrupa comercios sin localidad identificada. Los porcentajes reflejan el estado actual del reporte.')
     if comparacion.empty:
         st.info('Ninguna localidad alcanza el mínimo de consultas seleccionado.')
     else:
@@ -62,7 +64,8 @@ def mostrar_reportes(datos, pesos):
         st.dataframe(tabla.style.format({'Monto colocado': pesos, 'Oferta (%)': '{:.2f}%', 'Conversión (%)': '{:.2f}%'}), hide_index=True, use_container_width=True)
         st.markdown(f"**Total del monto colocado en las localidades mostradas: {pesos(comparacion['monto_liquidado'].sum())}**")
     st.subheader('Mapa de comercios · Referencias por localidad')
-    st.caption('Puntos simbólicos en el centro de cada localidad, no direcciones exactas. Un punto agrupa los comercios de esa localidad. Fuente geográfica: Georef Argentina.')
+    with st.expander("Más info", expanded=False):
+        st.caption('Puntos simbólicos en el centro de cada localidad, no direcciones exactas. Un punto agrupa los comercios de esa localidad. Fuente geográfica: Georef Argentina.')
     localidades_mapa = resumir(datos, 'Localidad')
     referencias_df = pd.DataFrame.from_dict(referencias, orient='index').rename_axis('Localidad').reset_index()
     puntos = localidades_mapa.merge(referencias_df, on='Localidad', how='inner', validate='one_to_one')
