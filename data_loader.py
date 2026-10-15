@@ -19,10 +19,10 @@ MAPA_LOCALIDADES = {
     "MOTOSUR NEUQUEN": "Neuquén",
     "MOTOSUR SURIANI NEUQUÉN": "Neuquén",
     "MOTOSUR SURIANI NEUQUEN": "Neuquén",
-    "MOTOLANDIA": "Buenos Aires",
+    "MOTOLANDIA": "Acassuso (San Isidro)",
     "RUTA 3 MOTOS SAN JUSTO": "San Justo (La Matanza)",
     "RUTA 3 MOTOS CASTELAR": "Castelar (Morón)",
-    "MOTOS R": "Buenos Aires",
+    "MOTOS R": "Venado Tuerto",
     "BIKECENTER PILAR": "Pilar",
     "CENTRO MOTOS SANTA TERESITA": "Santa Teresita",
     "BUSIN MOTOS GRAL. ROCA": "General Roca (Río Negro)",
@@ -63,6 +63,8 @@ MAPA_LOCALIDADES = {
 def inferir_localidad(comercio_str: str) -> str:
     c_up = str(comercio_str).strip().upper()
     # Ubicaciones confirmadas por Roberto; prevalecen sobre inferencias.
+    if "MOTOLANDIA" in c_up:
+        return "Acassuso (San Isidro)"
     if "SUNRA" in c_up:
         return "Escobar"
     if "KELLER" in c_up:

@@ -166,5 +166,19 @@
     "Longitud": -65.497218288,
     "Fuente": "Georef v2 · centroide de localidad",
     "LocalidadGeoref": "Monteros"
+  },
+  "Acassuso (San Isidro)": {
+    "Provincia": "Buenos Aires",
+    "Latitud": -34.478228664,
+    "Longitud": -58.502680011,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Acasusso"
+  },
+  "Venado Tuerto": {
+    "Provincia": "Santa Fe",
+    "Latitud": -33.745499157,
+    "Longitud": -61.968733525,
+    "Fuente": "Georef v2 · centroide de localidad",
+    "LocalidadGeoref": "Venado Tuerto"
   }
 }
