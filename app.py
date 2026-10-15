@@ -24,7 +24,7 @@ def ruta_logo(nombre):
     return local if os.path.exists(local) else os.path.join(carpeta, nombre)
 
 st.set_page_config(
-    page_title="Dashboard Cartera Comercios | Comercial Group",
+    page_title="Dashboard General de Comercios | Comercial Group" if solo_general else "Dashboard Cartera Comercios | Comercial Group",
     page_icon=ruta_logo("comercial-group.png"),
     layout="wide",
     initial_sidebar_state="auto"
@@ -410,7 +410,7 @@ if os.path.exists(report_path):
 st.sidebar.markdown(f'<div style="margin-top:32px; padding:16px 0 8px; text-align:left; border-top:1px solid #e5e7eb;"><img src="{logo_data("comerfin-powered-data.png")}" alt="ComerFin — Powered &amp; Data Analitycs" style="width:110px; max-width:55%; height:auto;"><div style="font-size:10px; opacity:.65; margin-top:6px;">Comercial Inteligence</div></div>', unsafe_allow_html=True)
 
 # ----------------- PANEL PRINCIPAL -----------------
-main_title = txt.get("titulo_mi_cartera", "Dashboard Cartera Comercios") if "Mi Cartera" in vista_seleccionada else txt.get("titulo_cartera_general", "🌐 Dashboard: Red General de Mercado")
+main_title = "Dashboard General de Comercios" if solo_general else (txt.get("titulo_mi_cartera", "Dashboard Cartera Comercios") if "Mi Cartera" in vista_seleccionada else txt.get("titulo_cartera_general", "🌐 Dashboard: Red General de Mercado"))
 st.markdown(f'<div class="dashboard-brand"><img src="{logo_data("prendo.png")}" alt="Prendo — Rápido. Seguro. Fácil."><h1>{html.escape(main_title)}</h1></div>', unsafe_allow_html=True)
 st.caption(f"Período: **{f_desde.strftime('%d/%m/%Y')} al {f_hasta.strftime('%d/%m/%Y')}** | Operaciones analizadas: **{len(df_filtrado):,}**")
 
