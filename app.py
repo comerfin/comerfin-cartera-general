@@ -115,6 +115,26 @@ st.markdown("""
     .st-key-venta_acumulada_dia [data-testid="stMetricLabel"] {color: #1e293b;}
     .st-key-venta_acumulada_dia [data-testid="stMetricValue"] {font-size: clamp(1.7rem, 3vw, 2.8rem); font-weight: 800;}
     .st-key-resumen_consultas_periodos [data-testid="stMetricValue"] {font-size: clamp(1.2rem, 1.8vw, 1.65rem);}
+    .st-key-venta_acumulada_dia [data-testid="stBaseButton-secondary"] {
+        background: #fffaf4 !important; color: #7c2d12 !important;
+        border: 1px solid #fdba74 !important; font-weight: 600;
+    }
+    .st-key-venta_acumulada_dia [data-testid="stBaseButton-secondary"] p,
+    .st-key-venta_acumulada_dia [data-testid="stBaseButton-secondary"] span {
+        color: #7c2d12 !important;
+    }
+    .st-key-venta_acumulada_dia [data-testid="stBaseButton-secondary"]:hover {
+        background: #ffedd5 !important; border-color: #f28c28 !important;
+    }
+    .st-key-venta_acumulada_dia [data-testid="stBaseButton-secondary"]:focus-visible {
+        outline: 2px solid #c2410c; outline-offset: 2px;
+    }
+    .visitor-welcome {
+        display: inline-block; background: #fff0de; color: #7c2d12;
+        border-left: 3px solid #f28c28; border-radius: 8px;
+        padding: 10px 16px; margin: 0 0 12px;
+        font-size: 1.25rem; font-weight: 700; line-height: 1.4;
+    }
     [data-testid="stSidebar"] a[href="https://forms.gle/1u6eQK39Hh7xZGjn7"] {
         background: #ffddb3; color: #000000; border: 1px solid #f5bb78;
         border-radius: 10px; font-weight: 700;
@@ -506,8 +526,8 @@ if localidades_sel:
     base_diaria = base_diaria[base_diaria["Localidad"].isin(localidades_sel)]
 with st.container(border=True, key="venta_acumulada_dia"):
     if nombre_visitante:
-        st.caption(f"Bienvenido, {nombre_visitante}")
-    st.subheader("⚡ Funnel · Acumulado mensual y parcial diario")
+        st.markdown(f'<div class="visitor-welcome">¡Bienvenido, {html.escape(nombre_visitante)}!</div>', unsafe_allow_html=True)
+    st.subheader("⚡ Funnel · Acumulado mensual y parcial")
     modo_diario = st.radio("Consultar día", ["Hoy", "Elegir fecha"], horizontal=True, key="modo_consulta_diaria")
     fecha_consulta = hoy_argentina
     if modo_diario == "Elegir fecha":
